@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "kindle-clippings-manager"
+version = "0.1.0"
+description = "Manage 'My Clippings.txt' from Kindle, removing duplicates and enabling book-specific notes export."
+authors = ["Vadym Mariiechko <vmariiechko@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "kindle_clippings_manager"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
