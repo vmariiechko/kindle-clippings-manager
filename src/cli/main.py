@@ -1,3 +1,5 @@
+import argparse
+from pathlib import Path
 from typing import Dict, List
 
 
@@ -17,46 +19,57 @@ def extract_location(clipping: str) -> (int, int):
     return start, end
 
 
+def is_overlap(first_range: (int, int), second_range: (int, int)) -> bool:
+    """
+    Determines whether two ranges overlap. This includes cases of exact overlap, partial
+    overlap, and full encapsulation, but excludes adjacent ranges where one ends exactly
+    where the other begins.
+
+    :param first_range: A tuple containing the start and end of the first range.
+    :param second_range: A tuple containing the start and end of the second range.
+    :return: True if the ranges overlap, False otherwise.
+    """
+
+    first_start, first_end = first_range
+    second_start, second_end = second_range
+
+    if first_start == second_start and first_end == second_end:  # Check for exact overlap
+        return True
+
+    return (first_start < second_start < first_end or first_start < second_end < first_end) or (
+        second_start < first_start < second_end or second_start < first_end < second_end
+    )
+
+
 def remove_duplicates(clippings: List[str]) -> List[str]:
-    book_highlights: Dict[str, List[str]] = {}
-    processed_clippings: List[str] = []
+    book_highlights: Dict[str, set] = {}
+    clippings_copy = clippings[:]
 
-    for clipping in clippings:
-        # If it's not a highlight, append directly to the result and continue
-        if "Your Highlight" not in clipping:
-            processed_clippings.append(clipping)
-            continue
+    # Iterate in reverse over the copy to keep the newest clippings
+    for i in range(len(clippings_copy) - 1, -1, -1):
+        clipping = clippings_copy[i]
+        if "Your Highlight" in clipping:
+            book_title = clipping.split("\n")[0]
+            start, end = extract_location(clipping)
 
-        # Process the highlights
-        book_title = clipping.split("\n")[0]
-        start, end = extract_location(clipping)
+            if book_title not in book_highlights:
+                book_highlights[book_title] = set()
 
-        if book_title not in book_highlights:
-            book_highlights[book_title] = []
+            # Check for exact duplicates and overlap
+            is_duplicate = False
+            for existing in book_highlights[book_title]:
+                existing_start, existing_end = extract_location(existing)
+                if clipping == existing or is_overlap((start, end), (existing_start, existing_end)):
+                    is_duplicate = True
+                    break
 
-        overlaps = []
-        for existing in book_highlights[book_title]:
-            existing_start, existing_end = extract_location(existing)
-            if (
-                existing_start <= start <= existing_end
-                or existing_start <= end <= existing_end
-                or start <= existing_start
-                and end >= existing_end
-            ):
-                overlaps.append(existing)
+            if is_duplicate:
+                clippings_copy.pop(i)  # Remove the duplicate clipping from the copy
 
-        if not overlaps:
-            book_highlights[book_title].append(clipping)
-            processed_clippings.append(clipping)
-        else:
-            longest = max(overlaps, key=lambda o: extract_location(o)[1] - extract_location(o)[0])
-            if end - start > extract_location(longest)[1] - extract_location(longest)[0]:
-                book_highlights[book_title].remove(longest)
-                processed_clippings.remove(longest)
-                book_highlights[book_title].append(clipping)
-                processed_clippings.append(clipping)
+            else:
+                book_highlights[book_title].add(clipping)
 
-    return processed_clippings
+    return clippings_copy
 
 
 def save_cleaned_clippings(file_name: str, cleaned_clippings: List[str]) -> None:
@@ -65,7 +78,34 @@ def save_cleaned_clippings(file_name: str, cleaned_clippings: List[str]) -> None
             f.write(clipping + "\n==========\n")
 
 
-if __name__ == "__main__":
-    clippings = read_clippings("")
+def main():
+    parser = argparse.ArgumentParser(description="Clean up Kindle clippings.")
+    parser.add_argument("input_file", type=str, help="Path to the input 'My Clippings.txt' file.")
+    parser.add_argument(
+        "-o",
+        "--output_file",
+        type=str,
+        default="Cleaned Clippings.txt",
+        help=(
+            "Path to the output cleaned clippings file. Defaults to 'Cleaned Clippings.txt' in the"
+            " current directory."
+        ),
+    )
+
+    args = parser.parse_args()
+
+    input_path = Path(args.input_file).resolve()
+    output_path = Path(args.output_file).resolve()
+
+    if not input_path.exists():
+        print(f"Error: The file {input_path} does not exist.")
+        return
+
+    clippings = read_clippings(input_path)
     cleaned_clippings = remove_duplicates(clippings)
-    save_cleaned_clippings("", cleaned_clippings)
+    save_cleaned_clippings(output_path, cleaned_clippings)
+    print(f"Cleaned clippings saved to: {output_path}")
+
+
+if __name__ == "__main__":
+    main()
