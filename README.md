@@ -16,4 +16,4 @@ poetry run pytest
 ```
 
 # TODO
-- Cover case for "Bookmark" to have 2 empty lines
+- Extend CLI with new options

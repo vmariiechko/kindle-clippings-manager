@@ -19,7 +19,7 @@ class KindleClippingsProcessor:
 
         with open(self.file_path, "r", encoding="utf-8") as file:
             content = file.read().split(self.DELIMITER)
-            return [entry.strip() for entry in content if entry.strip()]
+            return [entry for entry in content if entry.strip()]
 
     def extract_book_title_and_range(self, clipping: str) -> Tuple[str, Tuple[int, int]]:
         """Extract the book title and highlight range from a clipping."""
@@ -63,7 +63,7 @@ class KindleClippingsProcessor:
                 unique_clippings.append(clipping)
                 continue
 
-            book_title, highlight_range = self.extract_book_title_and_range(clipping)
+            book_title, highlight_range = self.extract_book_title_and_range(clipping.strip())
             if book_title not in self.book_highlights:
                 self.book_highlights[book_title] = set()
 
@@ -83,7 +83,7 @@ class KindleClippingsProcessor:
 
         with open(output_path, "w", encoding="utf-8") as file:
             for clipping in cleaned_clippings:
-                file.write(clipping + "\n" + self.DELIMITER)
+                file.write(clipping + self.DELIMITER)
 
 
 def main():
