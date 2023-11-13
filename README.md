@@ -14,3 +14,6 @@ Run tests from repositories root directory:
 ```
 poetry run pytest
 ```
+
+# TODO
+- Cover case for "Bookmark" to have 2 empty lines

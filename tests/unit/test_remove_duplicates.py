@@ -1,16 +1,20 @@
 import unittest
 
-from src.cli.main import remove_duplicates
+from src.cli.main import KindleClippingsProcessor
 
 
 class TestRemoveDuplicates(unittest.TestCase):
+    def setUp(self):
+        """Set up a KindleClippingsProcessor instance for testing."""
+        self.processor = KindleClippingsProcessor(None)
+
     def test_no_duplicates(self):
         """Test with no overlapping highlights."""
         clippings = [
             "Test Book (Author A)\n- Your Highlight on Location 100-110 | Added on Date\n\ncontent",
             "Test Book (Author A)\n- Your Highlight on Location 200-210 | Added on Date\n\ncontent",
         ]
-        result = remove_duplicates(clippings)
+        result = self.processor.remove_duplicates(clippings)
         self.assertEqual(len(result), 2)
         self.assertIn(clippings[0], result)
         self.assertIn(clippings[1], result)
@@ -21,7 +25,7 @@ class TestRemoveDuplicates(unittest.TestCase):
             "Test Book (Author A)\n- Your Highlight on Location 100-110 | Added on Date\n\ncontent",
             "Test Book (Author A)\n- Your Highlight on Location 100-110 | Added on Date\n\ncontent",
         ]
-        result = remove_duplicates(clippings)
+        result = self.processor.remove_duplicates(clippings)
         self.assertEqual(len(result), 1)
         self.assertIn(clippings[1], result)
 
@@ -34,7 +38,7 @@ class TestRemoveDuplicates(unittest.TestCase):
                 " Date\n\nlonger content"
             ),
         ]
-        result = remove_duplicates(clippings)
+        result = self.processor.remove_duplicates(clippings)
         self.assertEqual(len(result), 1)
         self.assertIn(clippings[1], result)
 
@@ -44,7 +48,7 @@ class TestRemoveDuplicates(unittest.TestCase):
             "Test Book (Author A)\n- Your Note on Location 100 | Added on Date\n\ncontent",
             "Test Book (Author A)\n- Your Bookmark on Location 200 | Added on Date\n\ncontent",
         ]
-        result = remove_duplicates(clippings)
+        result = self.processor.remove_duplicates(clippings)
         self.assertEqual(len(result), 2)
         self.assertIn(clippings[0], result)
         self.assertIn(clippings[1], result)
@@ -63,7 +67,7 @@ class TestRemoveDuplicates(unittest.TestCase):
                 " Date\n\nlonger content"
             ),
         ]
-        result = remove_duplicates(clippings)
+        result = self.processor.remove_duplicates(clippings)
         self.assertEqual(len(result), 3)
         self.assertIn(clippings[1], result)
         self.assertIn(clippings[2], result)
@@ -81,7 +85,7 @@ class TestRemoveDuplicates(unittest.TestCase):
                 " Date\nContent B"
             ),
         ]
-        result = remove_duplicates(clippings)
+        result = self.processor.remove_duplicates(clippings)
         self.assertEqual(len(result), 2)
         self.assertIn(clippings[0], result)
         self.assertIn(clippings[1], result)
@@ -93,7 +97,7 @@ class TestRemoveDuplicates(unittest.TestCase):
             "Test Book (Author A)\n- Your Highlight on Location 110-115 | Added on Date\nContent B",
             "Test Book (Author A)\n- Your Highlight on Location 115-120 | Added on Date\nContent C",
         ]
-        result = remove_duplicates(clippings)
+        result = self.processor.remove_duplicates(clippings)
         self.assertEqual(len(result), 3)
         self.assertIn(clippings[0], result)
         self.assertIn(clippings[1], result)
