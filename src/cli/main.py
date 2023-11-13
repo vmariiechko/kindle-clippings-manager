@@ -103,17 +103,23 @@ class KindleClippingsProcessor:
                 titles.add(book_title)
         return sorted(titles)
 
-    def default_formatting(self, clippings: List[str]) -> List[str]:
-        """Format clippings in the default Kindle format."""
-
-        return [f"{clipping}{self.DELIMITER}" for clipping in clippings]
-
     def apply_formatting(self, clippings: List[str], format_style: str) -> List[str]:
         """Apply specified formatting style to the clippings."""
 
         if format_style == "bullet":
             return self._format_with_bullets(clippings)
-        return clippings
+        return self._format_default(clippings)
+
+    def _format_default(self, clippings: List[str]) -> List[str]:
+        """Format clippings in the default Kindle format."""
+
+        formatted_clippings = []
+        for clipping in clippings:
+            formatted_clipping = f"{clipping}"
+            if not clipping.strip().endswith(self.DELIMITER.strip()):
+                formatted_clipping += self.DELIMITER
+            formatted_clippings.append(formatted_clipping)
+        return formatted_clippings
 
     def _format_with_bullets(self, clippings: List[str]) -> List[str]:
         """Format clippings with bullet points, excluding metadata."""
@@ -125,7 +131,7 @@ class KindleClippingsProcessor:
             if self.HIGHLIGHT_IDENTIFIER in clipping:
                 lines = clipping.split("\n")
                 book_title = lines[0]
-                highlight_text = "".join(lines[3:])  # Text starts from the 4th line
+                highlight_text = "".join(lines[3:])
 
                 if book_title != current_book_title:
                     formatted_clippings.append(f"=========== {book_title} ===========\n")
@@ -142,27 +148,33 @@ class KindleClippingsProcessor:
 def main():
     """Run the main function to process Kindle clippings."""
 
+    default_input_file = "My Clippings.txt"
+    default_output_file = "Cleaned Clippings.txt"
+
     parser = argparse.ArgumentParser(description="Clean up Kindle clippings.")
-    parser.add_argument("input_file", type=str, help="Path to the input 'My Clippings.txt' file.")
+    parser.add_argument(
+        "-i",
+        "--input_file",
+        type=str,
+        default=default_input_file,
+        help=f"Path to the input 'My Clippings.txt' file (default: {default_input_file}).",
+    )
     parser.add_argument(
         "-o",
         "--output_file",
         type=str,
-        default="Cleaned Clippings.txt",
-        help=(
-            "Path to the output cleaned clippings file. Defaults to 'Cleaned Clippings.txt' in the"
-            " current directory."
-        ),
+        default=default_output_file,
+        help=f"Path to the output cleaned clippings file (default: {default_output_file}).",
     )
     parser.add_argument(
         "-f",
         "--format_style",
         type=str,
-        choices=["bullet"],
-        default=None,
+        choices=["bullet", "default"],
+        default="default",
         help=(
-            "Optional: Specify a formatting style for the clippings (e.g., 'bullet' for bullet"
-            " points)."
+            "Formatting style for the clippings ('bullet' for bullet points, 'default' for standard"
+            " format)."
         ),
     )
 
@@ -175,13 +187,12 @@ def main():
         processor = KindleClippingsProcessor(input_path)
         clippings = processor.read_clippings()
 
-        # Book selection block
+        # Interactive book selection
         book_titles = processor.list_books(clippings)
         if book_titles:
             print("Available books:")
             for i, title in enumerate(book_titles, 1):
                 print(f"{i}. {title}")
-
             selection = input(
                 "Enter the number of the book to filter by (or press Enter to process all): "
             )
@@ -195,20 +206,15 @@ def main():
             print("No book titles found in clippings.")
 
         cleaned_clippings = processor.remove_duplicates(clippings)
-
-        if args.format_style:
-            formatted_clippings = processor.apply_formatting(cleaned_clippings, args.format_style)
-        else:
-            formatted_clippings = processor.default_formatting(cleaned_clippings)
-
+        formatted_clippings = processor.apply_formatting(cleaned_clippings, args.format_style)
         processor.save_cleaned_clippings(output_path, formatted_clippings)
 
         print(f"Cleaned clippings saved to: {output_path}")
 
     except FileNotFoundError:
-        print(f"Error: The file {args.input_file} does not exist.")
+        print(f"Error: The file '{args.input_file}' does not exist. Please check the file path.")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        print(f"An unexpected error occurred: {e}. Please check the inputs and try again.")
 
 
 if __name__ == "__main__":

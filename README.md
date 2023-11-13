@@ -3,10 +3,19 @@ Manage 'My Clippings.txt' from Kindle, removing duplicates and enabling book-spe
 
 
 ### Run via CLI
-1. Place "My Clippings.txt" to repository root folder
-2. From project root run CLI with relative path to file:
+1. Install dependencies:
     ```
-    python src/cli/main.py "My Clippings.txt"
+    poetry install
+    poetry shell
+    ```
+2. Place "My Clippings.txt" to repository root folder
+3. Explore available CLI options
+   ```
+   python src/cli/main.py --help
+   ```
+4. From project root run CLI:
+    ```
+    python src/cli/main.py
     ```
 
 ### Tests
@@ -16,4 +25,5 @@ poetry run pytest
 ```
 
 # TODO
-- Extend CLI with new options
+- Add GUI + executable
+- Update project README
