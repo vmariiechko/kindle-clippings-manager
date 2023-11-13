@@ -85,6 +85,22 @@ class KindleClippingsProcessor:
             for clipping in cleaned_clippings:
                 file.write(clipping + self.DELIMITER)
 
+    def filter_clippings_by_book(self, clippings: List[str], book_title: str) -> List[str]:
+        """Filter clippings for a specific book."""
+
+        filtered_clippings = [clipping for clipping in clippings if book_title in clipping]
+        return filtered_clippings
+
+    def list_books(self, clippings: List[str]) -> List[str]:
+        """List all unique book titles from the clippings."""
+
+        titles = set()
+        for clipping in clippings:
+            if self.HIGHLIGHT_IDENTIFIER in clipping:
+                book_title = clipping.split("\n")[0]
+                titles.add(book_title)
+        return sorted(titles)
+
 
 def main():
     """Run the main function to process Kindle clippings."""
@@ -110,6 +126,25 @@ def main():
 
         processor = KindleClippingsProcessor(input_path)
         clippings = processor.read_clippings()
+        book_titles = processor.list_books(clippings)
+
+        if book_titles:
+            print("Available books:")
+            for i, title in enumerate(book_titles, 1):
+                print(f"{i}. {title}")
+
+            selection = input(
+                "Enter the number of the book to filter by (or press Enter to process all): "
+            )
+            if selection.isdigit() and 0 < int(selection) <= len(book_titles):
+                selected_book = book_titles[int(selection) - 1]
+                clippings = processor.filter_clippings_by_book(clippings, selected_book)
+                print(f"Selected book for processing: {selected_book}")
+            else:
+                print("Processing all clippings.")
+        else:
+            print("No book titles found in clippings.")
+
         cleaned_clippings = processor.remove_duplicates(clippings)
         processor.save_cleaned_clippings(output_path, cleaned_clippings)
 
