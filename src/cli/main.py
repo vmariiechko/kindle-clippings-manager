@@ -1,4 +1,5 @@
 import argparse
+import traceback
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
@@ -213,8 +214,11 @@ def main():
 
     except FileNotFoundError:
         print(f"Error: The file '{args.input_file}' does not exist. Please check the file path.")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}. Please check the inputs and try again.")
+    except Exception:
+        print(
+            f"An unexpected error occurred:\n{traceback.format_exc()}\nPlease check the inputs and"
+            " try again."
+        )
 
 
 if __name__ == "__main__":
