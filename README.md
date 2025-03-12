@@ -2,7 +2,7 @@
 Manage 'My Clippings.txt' from Kindle, removing duplicates and enabling book-specific notes export.
 
 
-### New script: run via CLI
+## New script: run via CLI
 1. Install dependencies:
     ```
     poetry install
@@ -10,13 +10,13 @@ Manage 'My Clippings.txt' from Kindle, removing duplicates and enabling book-spe
     ```
 2. Go to [kindle clipping export tool](https://www.mykindletools.com/kindle-clipping-export) and export CSV file.
 3. Move downloaded files to `./data/` directory
-4. Replace the path to input file in the script.
+4. Replace the path to input file in the script `src\cli\main_external_csv.py`
 5. Execute with active poetry venv:
     ```
     python src/cli/main_external_csv.py
     ```
 
-### Old script: run via CLI
+## Old script: run via CLI
 1. Install dependencies:
     ```
     poetry install
@@ -40,6 +40,6 @@ Run tests from repositories root directory:
 poetry run pytest
 ```
 
-# TODO
+# TODO later
 - Add GUI + executable
 - Update project README
