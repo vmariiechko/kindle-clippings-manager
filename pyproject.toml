@@ -5,7 +5,7 @@ description = "Manage 'My Clippings.txt' from Kindle, removing duplicates and en
 authors = ["Vadym Mariiechko <vmariiechko@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "kindle_clippings_manager"}]
+packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -15,6 +15,12 @@ pandas = "^2.2.2"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
 
+[tool.poetry.scripts]
+kindle-clippings = "src.cli.main:main"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
