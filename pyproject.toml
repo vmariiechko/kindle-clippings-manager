@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "kindle_clippings_manager"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.11"
 pandas = "^2.2.2"
 
 
