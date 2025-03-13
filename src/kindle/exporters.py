@@ -36,11 +36,21 @@ class MarkdownExporter:
         # Fix spacing issues first
         category = re.sub(r"\s*-\s*", " - ", category)
 
-        # Apply title case (capitalize first letter of each word)
+        # Split into words
         words = category.split()
-        title_cased = " ".join(word.capitalize() for word in words)
+        formatted_words = []
 
-        return title_cased
+        for word in words:
+            # Check if the word is an abbreviation (all uppercase with length > 1)
+            if word.isupper() and len(word) > 1:
+                # Keep abbreviations as they are
+                formatted_words.append(word)
+            else:
+                # Apply title case to regular words
+                formatted_words.append(word.capitalize())
+
+        # Join words back together
+        return " ".join(formatted_words)
 
     def _build_category_tree(self) -> Dict[str, Any]:
         """Build a hierarchical category tree from highlights."""
